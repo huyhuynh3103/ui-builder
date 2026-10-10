@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import type { BuilderFormConfig } from '../../core/types/FormTypes';
-import { PackageManager } from '../PackageManager';
+import { ADAPTER_FORK_TARBALLS, PackageManager } from '../PackageManager';
 
 // Define explicit types for our test configs
 interface TestRendererConfig {
@@ -176,11 +176,12 @@ describe('PackageManager Integration Tests', () => {
       expect(result.dependencies).toHaveProperty('core-lib', '^1.0.0'); // From mock
       expect(result.dependencies).toHaveProperty('react', '^19.0.0'); // Updated from mock
       expect(result.dependencies).toHaveProperty('date-picker', '^2.0.0'); // From field
-      // Check for caret versions (default 'production' env applies versioning)
+      // The EVM adapter is forked, so it pins the fork tarball instead of a caret range.
       expect(result.dependencies).toHaveProperty(
         '@openzeppelin/adapter-evm',
-        expect.stringMatching(/^\^/)
+        ADAPTER_FORK_TARBALLS['@openzeppelin/adapter-evm']
       );
+      // Check for caret versions (default 'production' env applies versioning)
       expect(result.dependencies).toHaveProperty(
         '@openzeppelin/ui-types',
         expect.stringMatching(/^\^/)

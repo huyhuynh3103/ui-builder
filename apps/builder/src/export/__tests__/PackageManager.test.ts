@@ -4,7 +4,10 @@ import type { AdapterConfig, Ecosystem } from '@openzeppelin/ui-types';
 
 import { adapterPackageMap } from '../../core/ecosystemManager';
 import type { BuilderFormConfig } from '../../core/types/FormTypes';
-import { PackageManager } from '../PackageManager';
+import { ADAPTER_FORK_TARBALLS, PackageManager } from '../PackageManager';
+
+// The EVM adapter comes from our fork, not npm, so it pins a tarball in every environment.
+const EVM_FORK_TARBALL = ADAPTER_FORK_TARBALLS['@openzeppelin/adapter-evm'];
 
 // Mock the versions module for testing RC version handling
 vi.mock('../versions', async () => {
@@ -407,7 +410,7 @@ describe('PackageManager', () => {
       );
       expect(result.dependencies['@openzeppelin/ui-types']).toMatch(/^file:.*\/packages\/types$/);
       // Adapter packages still use workspace:* (they're in ui-builder monorepo)
-      expect(result.dependencies['@openzeppelin/adapter-evm']).toBe('workspace:*');
+      expect(result.dependencies['@openzeppelin/adapter-evm']).toBe(EVM_FORK_TARBALL);
     });
 
     it('should apply versioning strategy correctly (prod env)', async () => {
@@ -422,7 +425,7 @@ describe('PackageManager', () => {
       const result = JSON.parse(updated);
       expect(result.dependencies['@openzeppelin/ui-renderer']).toMatch(/^\^/);
       expect(result.dependencies['@openzeppelin/ui-types']).toMatch(/^\^/);
-      expect(result.dependencies['@openzeppelin/adapter-evm']).toMatch(/^\^/);
+      expect(result.dependencies['@openzeppelin/adapter-evm']).toBe(EVM_FORK_TARBALL);
     });
 
     it('should apply versioning strategy correctly (staging env)', async () => {
@@ -440,9 +443,7 @@ describe('PackageManager', () => {
       expect(result.dependencies['@openzeppelin/ui-renderer']).toMatch(/^\^/);
       expect(result.dependencies['@openzeppelin/ui-types']).toMatch(/^\^/);
 
-      // Adapter packages use RC versions for staging: accept 'rc' tag or timestamped RC
-      const rcVersionOrTag = /^(rc|\d+\.\d+\.\d+-rc(?:[-.]\d+)?)$/;
-      expect(result.dependencies['@openzeppelin/adapter-evm']).toMatch(rcVersionOrTag);
+      expect(result.dependencies['@openzeppelin/adapter-evm']).toBe(EVM_FORK_TARBALL);
 
       // Verify external deps don't get -rc treatment
       expect(result.dependencies['react']).not.toMatch(/-rc$/);
@@ -497,9 +498,7 @@ describe('PackageManager', () => {
       expect(result.dependencies['@openzeppelin/ui-renderer']).toMatch(/^\^/);
       expect(result.dependencies['@openzeppelin/ui-types']).toMatch(/^\^/);
 
-      // Adapter packages resolve to RC format (either dist-tag 'rc' or timestamped RC)
-      const rcVersionOrTag = /^(rc|\d+\.\d+\.\d+-rc(?:[-.]\d+)?)$/;
-      expect(result.dependencies['@openzeppelin/adapter-evm']).toMatch(rcVersionOrTag);
+      expect(result.dependencies['@openzeppelin/adapter-evm']).toBe(EVM_FORK_TARBALL);
     });
 
     it('should verify RC detection logic works correctly', async () => {
@@ -520,9 +519,7 @@ describe('PackageManager', () => {
       // UI packages use stable versions in staging (no RC pipeline for openzeppelin-ui)
       expect(stagingResult.dependencies['@openzeppelin/ui-renderer']).toMatch(/^\^/);
 
-      // Adapter packages use RC versions in staging
-      const rcVersionOrTag = /^(rc|\d+\.\d+\.\d+-rc(?:[-.]\d+)?)$/;
-      expect(stagingResult.dependencies['@openzeppelin/adapter-evm']).toMatch(rcVersionOrTag);
+      expect(stagingResult.dependencies['@openzeppelin/adapter-evm']).toBe(EVM_FORK_TARBALL);
 
       // Test that production doesn't get -rc
       const prodUpdated = await packageManager.updatePackageJson(
@@ -553,7 +550,7 @@ describe('PackageManager', () => {
       // Should behave like production environment
       expect(result.dependencies['@openzeppelin/ui-renderer']).toMatch(/^\^/);
       expect(result.dependencies['@openzeppelin/ui-types']).toMatch(/^\^/);
-      expect(result.dependencies['@openzeppelin/adapter-evm']).toMatch(/^\^/);
+      expect(result.dependencies['@openzeppelin/adapter-evm']).toBe(EVM_FORK_TARBALL);
     });
 
     it('should handle all three environments correctly in a single test', async () => {
@@ -573,7 +570,7 @@ describe('PackageManager', () => {
         /^file:.*\/packages\/renderer$/
       );
       // Adapter packages use workspace:*
-      expect(localResult.dependencies['@openzeppelin/adapter-evm']).toBe('workspace:*');
+      expect(localResult.dependencies['@openzeppelin/adapter-evm']).toBe(EVM_FORK_TARBALL);
 
       // Test staging environment
       const stagingUpdated = await packageManager.updatePackageJson(
@@ -587,9 +584,7 @@ describe('PackageManager', () => {
       // UI packages use stable versions (no RC pipeline)
       expect(stagingResult.dependencies['@openzeppelin/ui-renderer']).toMatch(/^\^/);
       // Adapter packages use RC versions
-      expect(stagingResult.dependencies['@openzeppelin/adapter-evm']).toMatch(
-        /^(rc|\d+\.\d+\.\d+-rc(?:[-.]\d+)?)$/
-      );
+      expect(stagingResult.dependencies['@openzeppelin/adapter-evm']).toBe(EVM_FORK_TARBALL);
 
       // Test production environment
       const prodUpdated = await packageManager.updatePackageJson(
@@ -601,7 +596,7 @@ describe('PackageManager', () => {
       );
       const prodResult = JSON.parse(prodUpdated);
       expect(prodResult.dependencies['@openzeppelin/ui-renderer']).toMatch(/^\^\d+\.\d+\.\d+$/);
-      expect(prodResult.dependencies['@openzeppelin/adapter-evm']).toMatch(/^\^\d+\.\d+\.\d+$/);
+      expect(prodResult.dependencies['@openzeppelin/adapter-evm']).toBe(EVM_FORK_TARBALL);
     });
 
     it('should preserve external dependencies regardless of environment', async () => {

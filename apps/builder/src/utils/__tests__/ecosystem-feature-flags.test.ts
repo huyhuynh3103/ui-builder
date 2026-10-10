@@ -34,34 +34,12 @@ describe('ecosystem-feature-flags', () => {
       });
     });
 
-    it('should return default config for Stellar (enabled)', () => {
-      const config = getEcosystemFeatureConfig('stellar');
-      expect(config).toEqual({
-        enabled: true,
-        showInUI: true,
-        disabledLabel: undefined,
-        disabledDescription: undefined,
-      });
-    });
+    it('should hide an ecosystem when its hide flag is set', () => {
+      vi.mocked(appConfigService.isFeatureEnabled).mockImplementation(
+        (flag) => flag === 'ecosystem_evm_hide_in_ui'
+      );
 
-    it('should return default config for Solana (disabled)', () => {
-      const config = getEcosystemFeatureConfig('solana');
-      expect(config).toEqual({
-        enabled: false,
-        showInUI: false,
-        disabledLabel: 'Coming Soon',
-        disabledDescription: undefined,
-      });
-    });
-
-    it('should override with feature flags', () => {
-      vi.mocked(appConfigService.isFeatureEnabled).mockImplementation((flag) => {
-        if (flag === 'ecosystem_solana_enabled') return true;
-        return false;
-      });
-
-      const config = getEcosystemFeatureConfig('solana');
-      expect(config.enabled).toBe(true);
+      expect(getEcosystemFeatureConfig('evm').showInUI).toBe(false);
     });
   });
 
@@ -70,80 +48,52 @@ describe('ecosystem-feature-flags', () => {
       expect(isEcosystemEnabled('evm')).toBe(true);
     });
 
-    it('should return true for Polkadot by default', () => {
-      expect(isEcosystemEnabled('polkadot')).toBe(true);
-    });
-
-    it('should return true for Stellar by default', () => {
-      expect(isEcosystemEnabled('stellar')).toBe(true);
-    });
-
-    it('should return false for Solana by default', () => {
-      expect(isEcosystemEnabled('solana')).toBe(false);
-    });
-
     it('should respect feature flag overrides', () => {
-      vi.mocked(appConfigService.isFeatureEnabled).mockImplementation((flag) => {
-        if (flag === 'ecosystem_solana_enabled') return true;
-        return false;
-      });
+      vi.mocked(appConfigService.isFeatureEnabled).mockImplementation(
+        (flag) => flag === 'ecosystem_solana_enabled'
+      );
 
       expect(isEcosystemEnabled('solana')).toBe(true);
     });
   });
 
   describe('shouldShowEcosystemInUI', () => {
-    it('should return true for visible ecosystems by default', () => {
+    it('should return true for EVM by default', () => {
       expect(shouldShowEcosystemInUI('evm')).toBe(true);
-      expect(shouldShowEcosystemInUI('polkadot')).toBe(true);
-      expect(shouldShowEcosystemInUI('solana')).toBe(false);
-      expect(shouldShowEcosystemInUI('stellar')).toBe(true);
-      expect(shouldShowEcosystemInUI('midnight')).toBe(true);
     });
 
     it('should respect feature flag overrides', () => {
-      vi.mocked(appConfigService.isFeatureEnabled).mockImplementation((flag) => {
-        if (flag === 'ecosystem_solana_hide_in_ui') return true;
-        return false;
-      });
+      vi.mocked(appConfigService.isFeatureEnabled).mockImplementation(
+        (flag) => flag === 'ecosystem_evm_hide_in_ui'
+      );
 
-      expect(shouldShowEcosystemInUI('solana')).toBe(false);
+      expect(shouldShowEcosystemInUI('evm')).toBe(false);
     });
   });
 
-  describe('getVisibleEcosystems', () => {
-    it('should return visible ecosystems by default', () => {
-      const visible = getVisibleEcosystems();
-      expect(visible).toEqual(['evm', 'stellar', 'polkadot', 'midnight']);
+  // This fork ships EVM only. Enabling another ecosystem by feature flag must not bring it
+  // back into either list, because the registry no longer offers it at all.
+  describe('ecosystem lists', () => {
+    it('should expose EVM alone', () => {
+      expect(getVisibleEcosystems()).toEqual(['evm']);
+      expect(getEnabledEcosystems()).toEqual(['evm']);
     });
 
-    it('should filter out hidden ecosystems', () => {
-      vi.mocked(appConfigService.isFeatureEnabled).mockImplementation((flag) => {
-        if (flag === 'ecosystem_solana_hide_in_ui') return true;
-        if (flag === 'ecosystem_stellar_hide_in_ui') return true;
-        return false;
-      });
+    it('should not re-admit an ecosystem that a feature flag enables', () => {
+      vi.mocked(appConfigService.isFeatureEnabled).mockImplementation(
+        (flag) => flag === 'ecosystem_solana_enabled' || flag === 'ecosystem_stellar_enabled'
+      );
 
-      const visible = getVisibleEcosystems();
-      expect(visible).toEqual(['evm', 'polkadot', 'midnight']);
-    });
-  });
-
-  describe('getEnabledEcosystems', () => {
-    it('should return EVM, Stellar, Polkadot, Midnight by default', () => {
-      const enabled = getEnabledEcosystems();
-      expect(enabled).toEqual(['evm', 'stellar', 'polkadot', 'midnight']);
+      expect(getVisibleEcosystems()).toEqual(['evm']);
+      expect(getEnabledEcosystems()).toEqual(['evm']);
     });
 
-    it('should include ecosystems enabled by feature flags', () => {
-      vi.mocked(appConfigService.isFeatureEnabled).mockImplementation((flag) => {
-        if (flag === 'ecosystem_solana_enabled') return true;
-        if (flag === 'ecosystem_stellar_enabled') return true;
-        return false;
-      });
+    it('should drop EVM when it is hidden', () => {
+      vi.mocked(appConfigService.isFeatureEnabled).mockImplementation(
+        (flag) => flag === 'ecosystem_evm_hide_in_ui'
+      );
 
-      const enabled = getEnabledEcosystems();
-      expect(enabled).toEqual(['evm', 'stellar', 'polkadot', 'midnight', 'solana']);
+      expect(getVisibleEcosystems()).toEqual([]);
     });
   });
 });

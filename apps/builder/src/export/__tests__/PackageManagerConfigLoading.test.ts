@@ -21,7 +21,10 @@ import { Ecosystem } from '@openzeppelin/ui-types';
 
 import { adapterPackageMap } from '../../core/ecosystemManager';
 import type { BuilderFormConfig } from '../../core/types/FormTypes';
-import { PackageManager } from '../PackageManager';
+import { ADAPTER_FORK_TARBALLS, PackageManager } from '../PackageManager';
+
+// The EVM adapter comes from our fork, not npm, so it pins a tarball in every environment.
+const EVM_FORK_TARBALL = ADAPTER_FORK_TARBALLS['@openzeppelin/adapter-evm'];
 
 vi.mock('virtual:adapter-configs', () => {
   const adapterConfigs = {
@@ -108,7 +111,6 @@ const createMinimalFormConfig = (fieldTypes: string[] = ['text']): BuilderFormCo
 
 describe('PackageManager configuration loading', () => {
   // Accept either the 'rc' dist-tag or timestamped RC variants like "0.0.0-rc-20250813180014"
-  const rcVersionOrTag = /^(rc|\d+\.\d+\.\d+-rc(?:[-.]\d+)?)$/;
   /**
    * This test suite focuses on testing the PackageManager with configurations
    * passed directly to the constructor, bypassing the dynamic loading mechanism.
@@ -167,7 +169,7 @@ describe('PackageManager configuration loading', () => {
       // UI packages from openzeppelin-ui use file: protocol for local development
       expect(result.dependencies['@openzeppelin/ui-types']).toMatch(/^file:.*\/packages\/types$/);
       // Adapter packages use workspace:* in local exports (linked workspace in ui-builder dev)
-      expect(result.dependencies['@openzeppelin/adapter-evm']).toBe('workspace:*');
+      expect(result.dependencies['@openzeppelin/adapter-evm']).toBe(EVM_FORK_TARBALL);
     });
 
     it('should apply correct versioning for staging environment', async () => {
@@ -185,7 +187,7 @@ describe('PackageManager configuration loading', () => {
       // UI packages from openzeppelin-ui use stable versions (no RC pipeline)
       expect(result.dependencies['@openzeppelin/ui-types']).toMatch(/^\^/);
       // Adapter packages use RC versions for staging
-      expect(result.dependencies['@openzeppelin/adapter-evm']).toMatch(rcVersionOrTag);
+      expect(result.dependencies['@openzeppelin/adapter-evm']).toBe(EVM_FORK_TARBALL);
 
       // External dependencies should remain unchanged
       expect(result.dependencies['react']).toBe('^19.0.0');
@@ -196,20 +198,21 @@ describe('PackageManager configuration loading', () => {
       const packageManager = new PackageManager(mockRendererConfig);
       const formConfig = createMinimalFormConfig();
       const basePackageJson = JSON.stringify({ name: 'test', version: '0.1.0' });
+      // Asserted on an adapter we still take from npm; the EVM one is forked and pins a tarball.
       const updated = await packageManager.updatePackageJson(
         basePackageJson,
         formConfig,
-        'evm',
+        'polkadot',
         'func1',
         { env: 'production' }
       );
       const result = JSON.parse(updated);
-      const raw = packageVersions['@openzeppelin/adapter-evm'];
-      expect(raw, 'versions.ts must carry a plain semver for the EVM adapter').toMatch(
+      const raw = packageVersions['@openzeppelin/adapter-polkadot'];
+      expect(raw, 'versions.ts must carry a plain semver for the Polkadot adapter').toMatch(
         /^\d+\.\d+\.\d+/
       );
       const expected = raw.startsWith('^') ? raw : `^${raw}`;
-      expect(result.dependencies['@openzeppelin/adapter-evm']).toBe(expected);
+      expect(result.dependencies['@openzeppelin/adapter-polkadot']).toBe(expected);
     });
 
     it('should handle three environments consistently', async () => {
@@ -239,9 +242,9 @@ describe('PackageManager configuration loading', () => {
       expect(prodResult.dependencies['@openzeppelin/ui-types']).toMatch(/^\^/);
 
       // Adapters (published from openzeppelin-adapters): workspace:* local, rc staging, ^stable prod
-      expect(localResult.dependencies['@openzeppelin/adapter-evm']).toBe('workspace:*');
-      expect(stagingResult.dependencies['@openzeppelin/adapter-evm']).toMatch(rcVersionOrTag);
-      expect(prodResult.dependencies['@openzeppelin/adapter-evm']).toMatch(/^\^/);
+      expect(localResult.dependencies['@openzeppelin/adapter-evm']).toBe(EVM_FORK_TARBALL);
+      expect(stagingResult.dependencies['@openzeppelin/adapter-evm']).toBe(EVM_FORK_TARBALL);
+      expect(prodResult.dependencies['@openzeppelin/adapter-evm']).toBe(EVM_FORK_TARBALL);
 
       // All should have same external dependencies
       expect(localResult.dependencies['react']).toBe('^19.0.0');

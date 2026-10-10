@@ -16,10 +16,14 @@ import type { AdapterConfig, Ecosystem } from '@openzeppelin/ui-types';
 
 import { adapterPackageMap } from '../../core/ecosystemManager';
 import type { BuilderFormConfig } from '../../core/types/FormTypes';
-import { PackageManager } from '../PackageManager';
+import { ADAPTER_FORK_TARBALLS, PackageManager } from '../PackageManager';
 import { packageVersions } from '../versions';
 
 const DEVELOPED_ECOSYSTEMS: Ecosystem[] = ['evm', 'stellar', 'polkadot', 'midnight'];
+
+// Adapters we fork pin a tarball URL in every environment, so the npm release-channel
+// assertions below are exercised against an ecosystem we still take from npm.
+const NPM_CHANNEL_ECOSYSTEM: Ecosystem = 'polkadot';
 
 const mockAdapterConfig: AdapterConfig = {
   dependencies: {
@@ -130,7 +134,7 @@ describe('Versioning Safety Guard', () => {
     it('should resolve to latest when an adapter has no versions.ts entry in production', async () => {
       const versionsModule = await import('../versions');
       const originalVersions = { ...versionsModule.packageVersions };
-      const testAdapter = adapterPackageMap['evm'];
+      const testAdapter = adapterPackageMap[NPM_CHANNEL_ECOSYSTEM];
 
       // Temporarily remove the EVM adapter from packageVersions to simulate a missing entry
       delete (versionsModule.packageVersions as Record<string, string>)[testAdapter];
@@ -140,7 +144,7 @@ describe('Versioning Safety Guard', () => {
         const updated = await packageManager.updatePackageJson(
           basePackageJson,
           minimalFormConfig,
-          'evm',
+          NPM_CHANNEL_ECOSYSTEM,
           'testFunction',
           { env: 'production' }
         );
@@ -185,10 +189,18 @@ describe('Versioning Safety Guard', () => {
             `Must not be "workspace:*" — this will break end users.`
         ).not.toBe('workspace:*');
 
-        expect(
-          deps[expectedAdapter],
-          `Production: ${ecosystem} adapter "${expectedAdapter}" should start with "^"`
-        ).toMatch(/^\^/);
+        const forkTarball = ADAPTER_FORK_TARBALLS[expectedAdapter];
+        if (forkTarball) {
+          expect(
+            deps[expectedAdapter],
+            `Production: ${ecosystem} adapter "${expectedAdapter}" is forked and must pin the fork tarball`
+          ).toBe(forkTarball);
+        } else {
+          expect(
+            deps[expectedAdapter],
+            `Production: ${ecosystem} adapter "${expectedAdapter}" should start with "^"`
+          ).toMatch(/^\^/);
+        }
 
         for (const [pkg, version] of Object.entries(deps)) {
           expect(
@@ -208,7 +220,7 @@ describe('Versioning Safety Guard', () => {
     it('uses npm rc dist-tag for staging when versions.ts holds a stable semver', async () => {
       const versionsModule = await import('../versions');
       const original = { ...versionsModule.packageVersions };
-      const testAdapter = adapterPackageMap['evm'];
+      const testAdapter = adapterPackageMap[NPM_CHANNEL_ECOSYSTEM];
       (versionsModule.packageVersions as Record<string, string>)[testAdapter] = '1.2.3';
 
       try {
@@ -216,7 +228,7 @@ describe('Versioning Safety Guard', () => {
         const updated = await packageManager.updatePackageJson(
           basePackageJson,
           minimalFormConfig,
-          'evm',
+          NPM_CHANNEL_ECOSYSTEM,
           'testFunction',
           { env: 'staging' }
         );
@@ -230,7 +242,7 @@ describe('Versioning Safety Guard', () => {
     it('uses caret stable range in production when versions.ts holds a plain semver', async () => {
       const versionsModule = await import('../versions');
       const original = { ...versionsModule.packageVersions };
-      const testAdapter = adapterPackageMap['evm'];
+      const testAdapter = adapterPackageMap[NPM_CHANNEL_ECOSYSTEM];
       (versionsModule.packageVersions as Record<string, string>)[testAdapter] = '1.2.3';
 
       try {
@@ -238,7 +250,7 @@ describe('Versioning Safety Guard', () => {
         const updated = await packageManager.updatePackageJson(
           basePackageJson,
           minimalFormConfig,
-          'evm',
+          NPM_CHANNEL_ECOSYSTEM,
           'testFunction',
           { env: 'production' }
         );
@@ -274,11 +286,19 @@ describe('Versioning Safety Guard', () => {
             `Must not be "workspace:*" — this will break end users.`
         ).not.toBe('workspace:*');
 
+        const forkTarball = ADAPTER_FORK_TARBALLS[expectedAdapter];
         const rcVersionOrTag = /^(rc|\d+\.\d+\.\d+-rc(?:[-.]\d+)?)$/;
-        expect(
-          deps[expectedAdapter],
-          `Staging: ${ecosystem} adapter "${expectedAdapter}" should be RC version or dist-tag`
-        ).toMatch(rcVersionOrTag);
+        if (forkTarball) {
+          expect(
+            deps[expectedAdapter],
+            `Staging: ${ecosystem} adapter "${expectedAdapter}" is forked and must pin the fork tarball`
+          ).toBe(forkTarball);
+        } else {
+          expect(
+            deps[expectedAdapter],
+            `Staging: ${ecosystem} adapter "${expectedAdapter}" should be RC version or dist-tag`
+          ).toMatch(rcVersionOrTag);
+        }
 
         for (const [pkg, version] of Object.entries(deps)) {
           expect(

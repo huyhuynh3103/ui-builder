@@ -89,7 +89,7 @@ async function loadAdapterModule(ecosystem: Ecosystem): Promise<EcosystemExport>
 const networksByEcosystemCache: Partial<Record<Ecosystem, NetworkConfig[]>> = {};
 const networkPromiseCache: Partial<Record<Ecosystem, Promise<NetworkConfig[]>>> = {};
 
-const ALL_ECOSYSTEMS: Ecosystem[] = ['evm', 'solana', 'stellar', 'midnight', 'polkadot'];
+const ALL_ECOSYSTEMS: Ecosystem[] = ['evm'];
 
 /**
  * Loads only the network config array for an ecosystem. This is much lighter

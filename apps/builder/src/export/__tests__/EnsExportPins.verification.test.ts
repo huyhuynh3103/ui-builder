@@ -6,6 +6,7 @@ import { describe, expect, it } from 'vitest';
 import { getNetworksByEcosystem } from '../../core/ecosystemManager';
 import { AppExportSystem } from '../AppExportSystem';
 import { EXTERNAL_DEPENDENCY_FLOORS } from '../dependencyFloors';
+import { ADAPTER_FORK_TARBALLS } from '../PackageManager';
 import { createMinimalContractSchema, createMinimalFormConfig } from '../utils/testConfig';
 import { extractFilesFromZip } from '../utils/zipInspector';
 import { packageVersions } from '../versions';
@@ -38,13 +39,17 @@ describe('ENS export dependency pins (production)', () => {
     // fail this test and, in turn, block that script's own snapshot refresh.
     for (const name of [
       '@openzeppelin/ui-types',
-      '@openzeppelin/adapter-evm',
       '@openzeppelin/ui-components',
       '@openzeppelin/ui-renderer',
       '@openzeppelin/ui-react',
     ] as const) {
       expect(deps[name], name).toBe(`^${packageVersions[name]}`);
     }
+
+    // The EVM adapter is forked, so it pins the fork tarball rather than a published version.
+    expect(deps['@openzeppelin/adapter-evm']).toBe(
+      ADAPTER_FORK_TARBALLS['@openzeppelin/adapter-evm']
+    );
 
     // viem is a floor rather than a published-version pin.
     expect(deps['viem']).toBe(EXTERNAL_DEPENDENCY_FLOORS.viem);

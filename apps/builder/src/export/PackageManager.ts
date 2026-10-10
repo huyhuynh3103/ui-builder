@@ -47,6 +47,18 @@ import { applyDependencyFloor } from './dependencyFloors';
 import { packageVersions } from './versions';
 
 /**
+ * Adapters we ship from our own fork rather than npm, keyed by package name. The EVM adapter
+ * carries the RISE networks, which upstream does not have, so exported apps have to install it
+ * from the fork's release tarball.
+ *
+ * TODO(rise): point this at the GitHub release URL once the fork repo is published.
+ */
+export const ADAPTER_FORK_TARBALLS: Record<string, string> = {
+  '@openzeppelin/adapter-evm':
+    'https://github.com/RISE-LABS-PLACEHOLDER/openzeppelin-adapters/releases/download/adapter-evm-v5.0.0-rise.1/openzeppelin-adapter-evm-5.0.0.tgz',
+};
+
+/**
  * PackageManager is responsible for managing dependencies in exported form projects.
  * It dynamically loads configuration files from adapters and the renderer
  * package to determine the dependencies required for different chain types and
@@ -521,8 +533,13 @@ export class PackageManager {
       // Handle adapter packages (ui-builder repo)
       else if (adapterPackages.has(pkgName)) {
         const managedVersion = packageVersions[pkgName as keyof typeof packageVersions] || version;
+        const forkTarball = ADAPTER_FORK_TARBALLS[pkgName];
 
-        if (env === 'local') {
+        if (forkTarball) {
+          // Forked adapters are not on npm, and a tarball URL must not be run through the
+          // semver branches below -- they would prefix it with a caret.
+          updatedDependencies[pkgName] = forkTarball;
+        } else if (env === 'local') {
           // Local development: Use workspace packages (current monorepo code)
           updatedDependencies[pkgName] = 'workspace:*';
         } else if (env === 'staging') {

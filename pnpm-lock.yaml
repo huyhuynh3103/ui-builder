@@ -5,6 +5,7 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
+  '@openzeppelin/adapter-evm': file:../openzeppelin-adapters/packages/adapter-evm/openzeppelin-adapter-evm-5.0.0.tgz
   '@metamask/eth-json-rpc-provider': ^2.2.0
   vite: 7.3.2
   use-sync-external-store: ^1.2.0
@@ -149,8 +150,8 @@ importers:
         specifier: ^12.9.0
         version: 12.9.0(react@19.2.4)
       '@openzeppelin/adapter-evm':
-        specifier: '>=5.0.0-0 <6.0.0'
-        version: 5.0.0(a4123613e3cbff706f494d98b903d2be)
+        specifier: file:../../../openzeppelin-adapters/packages/adapter-evm/openzeppelin-adapter-evm-5.0.0.tgz
+        version: file:../openzeppelin-adapters/packages/adapter-evm/openzeppelin-adapter-evm-5.0.0.tgz(a4123613e3cbff706f494d98b903d2be)
       '@openzeppelin/adapter-midnight':
         specifier: '>=4.0.1-0 <5.0.0'
         version: 4.0.1(@openzeppelin/ui-components@3.8.3(@babel/runtime@7.29.2)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(tailwindcss@4.2.2)(typescript@5.9.3))(@openzeppelin/ui-react@3.3.2(@babel/runtime@7.29.2)(@tanstack/react-query@5.96.2(react@19.2.4))(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(tailwindcss@4.2.2)(typescript@5.9.3))(@openzeppelin/ui-types@3.5.2)(@openzeppelin/ui-utils@4.0.1)(@types/react@19.2.14)(bufferutil@4.1.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(utf-8-validate@6.0.6)
@@ -319,7 +320,7 @@ importers:
         version: 4.0.0
       '@openzeppelin/adapters-vite':
         specifier: '>=12.0.0-0 <13.0.0'
-        version: 12.0.0(dbbd4c3c88cd911459d093336a94a18e)
+        version: 12.0.0(2979888b86c25d20928ec8a62108c79d)
       '@tailwindcss/vite':
         specifier: ^4.2.2
         version: 4.2.2(vite@7.3.2(@types/node@24.10.13)(jiti@2.6.1)(lightningcss@1.32.0)(terser@5.47.1)(yaml@2.9.0))
@@ -1414,8 +1415,9 @@ packages:
     resolution: {integrity: sha512-nn5ozdjYQpUCZlWGuxcJY/KpxkWQs4DcbMCmKojjyrYDEAGy4Ce19NN4v5MduafTwJlbKc99UA8YhSVqq9yPZA==}
     engines: {node: '>=12.4.0'}
 
-  '@openzeppelin/adapter-evm@5.0.0':
-    resolution: {integrity: sha512-/78k0Ev4MoEYgZHGAelxtaKOgEAwCOoLNXu8L02k+zGowPC2yDIm6dHJWRgeJHJGTdcCxbmg+jGZPaEtIWM21g==}
+  '@openzeppelin/adapter-evm@file:../openzeppelin-adapters/packages/adapter-evm/openzeppelin-adapter-evm-5.0.0.tgz':
+    resolution: {integrity: sha512-YBDEbzSI2lUZHyLV60NCbZoIyoyWFGFtsijkXVlI/ML2MVuGGsVdTJaONR5mZ9zc/8XxzqGhutOx4IHt4A8I+Q==, tarball: file:../openzeppelin-adapters/packages/adapter-evm/openzeppelin-adapter-evm-5.0.0.tgz}
+    version: 5.0.0
     peerDependencies:
       '@openzeppelin/ui-components': 3.8.3
       '@openzeppelin/ui-react': 3.3.2
@@ -1426,7 +1428,7 @@ packages:
       react: ^19.0.0
       react-dom: ^19.0.0
       react-hook-form: 7.79.0
-      viem: ^2.35.0
+      viem: ^2.45.0
       wagmi: ^2.15.0
 
   '@openzeppelin/adapter-midnight@4.0.1':
@@ -9313,7 +9315,7 @@ snapshots:
 
   '@nolyfill/is-core-module@1.0.39': {}
 
-  '@openzeppelin/adapter-evm@5.0.0(a4123613e3cbff706f494d98b903d2be)':
+  '@openzeppelin/adapter-evm@file:../openzeppelin-adapters/packages/adapter-evm/openzeppelin-adapter-evm-5.0.0.tgz(a4123613e3cbff706f494d98b903d2be)':
     dependencies:
       '@openzeppelin/relayer-sdk': 1.9.0
       '@openzeppelin/ui-components': 3.8.3(@babel/runtime@7.29.2)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(tailwindcss@4.2.2)(typescript@5.9.3)
@@ -9455,11 +9457,11 @@ snapshots:
       - typescript
       - utf-8-validate
 
-  '@openzeppelin/adapters-vite@12.0.0(dbbd4c3c88cd911459d093336a94a18e)':
+  '@openzeppelin/adapters-vite@12.0.0(2979888b86c25d20928ec8a62108c79d)':
     dependencies:
       vite: 7.3.2(@types/node@24.10.13)(jiti@2.6.1)(lightningcss@1.32.0)(terser@5.47.1)(yaml@2.9.0)
     optionalDependencies:
-      '@openzeppelin/adapter-evm': 5.0.0(a4123613e3cbff706f494d98b903d2be)
+      '@openzeppelin/adapter-evm': file:../openzeppelin-adapters/packages/adapter-evm/openzeppelin-adapter-evm-5.0.0.tgz(a4123613e3cbff706f494d98b903d2be)
       '@openzeppelin/adapter-midnight': 4.0.1(@openzeppelin/ui-components@3.8.3(@babel/runtime@7.29.2)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(tailwindcss@4.2.2)(typescript@5.9.3))(@openzeppelin/ui-react@3.3.2(@babel/runtime@7.29.2)(@tanstack/react-query@5.96.2(react@19.2.4))(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(tailwindcss@4.2.2)(typescript@5.9.3))(@openzeppelin/ui-types@3.5.2)(@openzeppelin/ui-utils@4.0.1)(@types/react@19.2.14)(bufferutil@4.1.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(utf-8-validate@6.0.6)
       '@openzeppelin/adapter-polkadot': 5.0.0(c0cc18762059635d20247f9d0c6e4f85)
       '@openzeppelin/adapter-solana': 4.0.1(@openzeppelin/ui-types@3.5.2)(@openzeppelin/ui-utils@4.0.1)(bufferutil@4.1.0)(fastestsmallesttextencoderdecoder@1.0.22)(react-native@0.83.1(@babel/core@7.29.0)(@types/react@19.2.14)(bufferutil@4.1.0)(react@19.2.4)(utf-8-validate@6.0.6))(react@19.2.4)(typescript@5.9.3)(utf-8-validate@6.0.6)

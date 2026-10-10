@@ -15,6 +15,9 @@ minimumReleaseAgeExclude:
   - 'vitest'
   - '@vitest/*'
 overrides:
+  # The RISE networks live in our fork of @openzeppelin/adapter-evm; upstream has no RISE chain.
+  # TODO(rise): swap for the GitHub release tarball URL once the fork repo is published.
+  '@openzeppelin/adapter-evm': 'file:../openzeppelin-adapters/packages/adapter-evm/openzeppelin-adapter-evm-5.0.0.tgz'
   # @metamask/eth-json-rpc-provider published no `license` field (and no LICENSE
   # file) for 1.0.0-2.1.0; 2.2.0 onwards are ISC and ship the licence text.
   # eth-block-tracker@7 declares ^1.0.0, but it imports only the
