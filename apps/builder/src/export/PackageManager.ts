@@ -53,7 +53,7 @@ import { packageVersions } from './versions';
  */
 export const ADAPTER_FORK_TARBALLS: Record<string, string> = {
   '@openzeppelin/adapter-evm':
-    'https://github.com/riselabs-xyz/openzeppelin-adapters/releases/download/adapter-evm-v5.0.0-rise.1/openzeppelin-adapter-evm-5.0.0.tgz',
+    'https://github.com/huyhuynh3103/openzeppelin-adapters/releases/download/adapter-evm-v5.0.0-rise.1/openzeppelin-adapter-evm-5.0.0.tgz',
 };
 
 /**
