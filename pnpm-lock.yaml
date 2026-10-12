@@ -1416,7 +1416,7 @@ packages:
     engines: {node: '>=12.4.0'}
 
   '@openzeppelin/adapter-evm@file:../openzeppelin-adapters/packages/adapter-evm/openzeppelin-adapter-evm-5.0.0.tgz':
-    resolution: {integrity: sha512-XTKwv1KyNgE4n3yFvUxCm0VfQorGf/CzFi6WBqBnfrxQnn7w3tuW4J0KbPR81PhJzrXh2pJbceNhnmm0+jBc5g==, tarball: file:../openzeppelin-adapters/packages/adapter-evm/openzeppelin-adapter-evm-5.0.0.tgz}
+    resolution: {integrity: sha512-2nagF6wGGmd8uYCC2Rx0X1pkHtyERpy+xMuRG7Qv80zOVXU0Qf1lKNXcuZeqLXdUt2GzdmYI3SSF4upEQaimEw==, tarball: file:../openzeppelin-adapters/packages/adapter-evm/openzeppelin-adapter-evm-5.0.0.tgz}
     version: 5.0.0
     peerDependencies:
       '@openzeppelin/ui-components': 3.8.3

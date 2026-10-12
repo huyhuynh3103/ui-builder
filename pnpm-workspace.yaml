@@ -16,7 +16,9 @@ minimumReleaseAgeExclude:
   - '@vitest/*'
 overrides:
   # The RISE networks live in our fork of @openzeppelin/adapter-evm; upstream has no RISE chain.
-  # TODO(rise): swap for the GitHub release tarball URL once the fork repo is published.
+  # Swap this for the release tarball once riselabs-xyz/openzeppelin-adapters publishes one:
+  #   https://github.com/riselabs-xyz/openzeppelin-adapters/releases/download/adapter-evm-v5.0.0-rise.1/openzeppelin-adapter-evm-5.0.0.tgz
+  # Until then it resolves a sibling checkout's `pnpm pack` output.
   '@openzeppelin/adapter-evm': 'file:../openzeppelin-adapters/packages/adapter-evm/openzeppelin-adapter-evm-5.0.0.tgz'
   # @metamask/eth-json-rpc-provider published no `license` field (and no LICENSE
   # file) for 1.0.0-2.1.0; 2.2.0 onwards are ISC and ship the licence text.
