@@ -5,7 +5,7 @@ import type { FunctionDecoration } from '@openzeppelin/ui-types';
 import { FunctionBadge, FunctionParameter } from '@openzeppelin/ui-types';
 import { cn } from '@openzeppelin/ui-utils';
 
-import { WritableFunctionRowProps } from './types';
+import { FunctionRowProps } from './types';
 
 /**
  * Badge component for displaying function decorations
@@ -38,12 +38,12 @@ function DecorationBadge({ decoration }: { decoration: FunctionDecoration }) {
   );
 }
 
-export function WritableFunctionRow({
+export function FunctionRow({
   fn,
   isSelected,
   onSelect,
   decoration,
-}: WritableFunctionRowProps & { decoration?: FunctionDecoration }) {
+}: FunctionRowProps & { decoration?: FunctionDecoration }) {
   return (
     <div
       className={cn(
@@ -55,7 +55,7 @@ export function WritableFunctionRow({
       aria-selected={isSelected}
       onClick={(e) => {
         e.stopPropagation();
-        onSelect(fn.id, fn.modifiesState);
+        onSelect(fn.id);
       }}
     >
       {/* Function info display area */}
@@ -96,7 +96,7 @@ export function WritableFunctionRow({
           variant="outline"
           onClick={(e) => {
             e.stopPropagation();
-            onSelect(fn.id, fn.modifiesState);
+            onSelect(fn.id);
           }}
           className={cn(
             'h-8 px-3 text-xs',

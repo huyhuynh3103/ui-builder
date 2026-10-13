@@ -5,15 +5,17 @@ import { logger } from '@openzeppelin/ui-utils';
 
 import type { BuilderRuntime } from '@/core/runtimeAdapter';
 
-import { WritableFunctionsSectionProps } from './types';
-import { WritableFunctionRow } from './WritableFunctionRow';
+import { FunctionRow } from './FunctionRow';
+import { FunctionsSectionProps } from './types';
 
-export function WritableFunctionsSection({
+export function FunctionsSection({
+  title,
+  emptyMessage,
   functions,
   selectedFunction,
   onSelectFunction,
   runtime,
-}: WritableFunctionsSectionProps & { runtime?: BuilderRuntime }) {
+}: FunctionsSectionProps & { runtime?: BuilderRuntime }) {
   const [decorations, setDecorations] = useState<FunctionDecorationsMap | undefined>();
 
   // Fetch function decorations when runtime is available
@@ -27,10 +29,10 @@ export function WritableFunctionsSection({
         const result = await runtime.schema.getFunctionDecorations!();
         if (result) {
           setDecorations(result);
-          logger.debug('WritableFunctionsSection', 'Function decorations loaded');
+          logger.debug('FunctionsSection', 'Function decorations loaded');
         }
       } catch (error) {
-        logger.warn('WritableFunctionsSection', 'Failed to fetch function decorations', error);
+        logger.warn('FunctionsSection', 'Failed to fetch function decorations', error);
       }
     };
 
@@ -39,14 +41,12 @@ export function WritableFunctionsSection({
 
   return (
     <div className="space-y-2">
-      <h4 className="text-md font-medium">Writable Functions</h4>
+      <h4 className="text-md font-medium">{title}</h4>
       {functions.length === 0 ? (
-        <p className="text-muted-foreground py-2 text-center">
-          No writable functions found in this contract.
-        </p>
+        <p className="text-muted-foreground py-2 text-center">{emptyMessage}</p>
       ) : (
         functions.map((fn) => (
-          <WritableFunctionRow
+          <FunctionRow
             key={fn.id}
             fn={fn}
             isSelected={selectedFunction === fn.id}

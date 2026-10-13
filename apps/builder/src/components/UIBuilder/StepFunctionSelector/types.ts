@@ -17,22 +17,16 @@ export interface FilterControlsProps {
   setFilterValue: (value: string) => void;
 }
 
-export interface WritableFunctionRowProps {
+export interface FunctionRowProps {
   fn: ContractFunction;
   isSelected: boolean;
-  onSelect: (functionId: string, modifiesState: boolean) => void;
+  onSelect: (functionId: string) => void;
 }
 
-export interface ReadOnlyFunctionCardProps {
-  fn: ContractFunction;
-}
-
-export interface WritableFunctionsSectionProps {
+export interface FunctionsSectionProps {
+  title: string;
+  emptyMessage: string;
   functions: ContractFunction[];
   selectedFunction?: string | null;
-  onSelectFunction: (functionId: string, modifiesState: boolean) => void;
-}
-
-export interface ReadOnlyFunctionsSectionProps {
-  functions: ContractFunction[];
+  onSelectFunction: (functionId: string) => void;
 }

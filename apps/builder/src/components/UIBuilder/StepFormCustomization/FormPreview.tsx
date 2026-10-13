@@ -8,6 +8,7 @@ import type { ContractFunction, ContractSchema } from '@openzeppelin/ui-types';
 import { formSchemaFactory } from '../../../core/factories/FormSchemaFactory';
 import { toTransactionFormCapabilities } from '../../../core/runtimeAdapter';
 import type { BuilderFormConfig } from '../../../core/types/FormTypes';
+import { ViewQueryForm } from '../../../export/templates/typescript-react-vite/src/components/ViewQueryForm';
 import { useBuilderAnalytics } from '../../../hooks/useBuilderAnalytics';
 import { useBuilderWalletState } from '../../../hooks/useBuilderWalletState';
 
@@ -75,16 +76,25 @@ export function FormPreview({ formConfig, functionDetails, contractSchema }: For
       </div>
       <Card className="overflow-visible border-dashed border-primary/50 bg-gray-50/50">
         <CardContent className="p-6">
-          <TransactionForm
-            schema={renderSchema}
-            adapter={toTransactionFormCapabilities(runtime)}
-            contractSchema={contractSchema}
-            isWalletConnected={isWalletConnected}
-            executionConfig={formConfig.executionConfig}
-            onTransactionSuccess={({ network_id, ecosystem, execution_method }) => {
-              trackTransactionExecuted(network_id, ecosystem, execution_method);
-            }}
-          />
+          {/* The same component the export ships, so the preview cannot drift from it. */}
+          {!functionDetails.modifiesState ? (
+            <ViewQueryForm
+              schema={renderSchema}
+              contractSchema={contractSchema}
+              adapter={toTransactionFormCapabilities(runtime)}
+            />
+          ) : (
+            <TransactionForm
+              schema={renderSchema}
+              adapter={toTransactionFormCapabilities(runtime)}
+              contractSchema={contractSchema}
+              isWalletConnected={isWalletConnected}
+              executionConfig={formConfig.executionConfig}
+              onTransactionSuccess={({ network_id, ecosystem, execution_method }) => {
+                trackTransactionExecuted(network_id, ecosystem, execution_method);
+              }}
+            />
+          )}
         </CardContent>
       </Card>
     </div>

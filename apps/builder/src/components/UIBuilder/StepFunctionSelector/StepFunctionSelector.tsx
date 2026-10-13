@@ -7,8 +7,8 @@ import { ActionBar } from '../../Common/ActionBar';
 import { StepTitleWithDescription } from '../Common';
 import { uiBuilderStoreVanilla } from '../hooks/uiBuilderStore';
 import { FilterControls } from './FilterControls';
+import { FunctionsSection } from './FunctionsSection';
 import { StepFunctionSelectorProps } from './types';
-import { WritableFunctionsSection } from './WritableFunctionsSection';
 
 export function StepFunctionSelector({
   contractSchema,
@@ -22,10 +22,10 @@ export function StepFunctionSelector({
   const { contractState } = useStore(uiBuilderStoreVanilla);
 
   // Use custom hooks to manage component logic
-  const { filteredFunctions, writableFunctions, filterValue, setFilterValue } =
+  const { filteredFunctions, writableFunctions, readableFunctions, filterValue, setFilterValue } =
     useFunctionFilter(contractSchema);
 
-  const { selectFunction } = useFunctionSelection(onFunctionSelected, contractSchema);
+  const { selectFunction } = useFunctionSelection(onFunctionSelected);
 
   if (!contractSchema) {
     // If we have a definition but no schema yet, we're loading
@@ -58,14 +58,25 @@ export function StepFunctionSelector({
 
       <StepTitleWithDescription
         title="Select Contract Function"
-        description="Choose the contract function you want to create a transaction form for. Each function will have its own dedicated form."
+        description="Choose the contract function you want to build a UI for. A writable function becomes a transaction form, a read-only one becomes a query form. Each function gets its own."
       />
 
       <FilterControls filterValue={filterValue} setFilterValue={setFilterValue} />
 
       <div className="max-h-96 space-y-6 overflow-y-auto">
-        <WritableFunctionsSection
+        <FunctionsSection
+          title="Writable Functions"
+          emptyMessage="No writable functions found in this contract."
           functions={writableFunctions}
+          selectedFunction={selectedFunction}
+          onSelectFunction={selectFunction}
+          runtime={runtime}
+        />
+
+        <FunctionsSection
+          title="Read-only Functions"
+          emptyMessage="No read-only functions found in this contract."
+          functions={readableFunctions}
           selectedFunction={selectedFunction}
           onSelectFunction={selectFunction}
           runtime={runtime}

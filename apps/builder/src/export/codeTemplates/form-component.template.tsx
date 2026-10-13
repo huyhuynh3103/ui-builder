@@ -19,6 +19,8 @@ import type {
 } from '@openzeppelin/ui-types';
 import { cn } from '@openzeppelin/ui-utils';
 
+import { ViewQueryForm } from './ViewQueryForm';
+
 export type BuilderAdapter = TransactionFormCapabilities;
 
 // eslint-disable-next-line react-refresh/only-export-components -- template file, non-component exports are intentional
@@ -122,6 +124,12 @@ export default function GeneratedForm({ adapter, isWalletConnected }: GeneratedF
 
   const contractAddress = formSchema.contractAddress;
 
+  // A read-only function is queried over RPC, so it gets the query form instead of the
+  // transaction form: no wallet, no execution config, a result instead of a tx hash.
+  const isReadOnly =
+    contractSchema.functions?.find((fn) => fn.id === formSchema.functionId)?.modifiesState ===
+    false;
+
   // TODO: Enable this useEffect as a fallback?
   // If the adapter supports runtime schema loading (e.g., via Etherscan)
   // and the injected schema is missing or invalid, this could attempt to load it.
@@ -195,13 +203,21 @@ export default function GeneratedForm({ adapter, isWalletConnected }: GeneratedF
         <div className="flex-1">
           <Card>
             <CardContent className="space-y-4">
-              <TransactionForm
-                schema={formSchema}
-                contractSchema={contractSchema}
-                adapter={adapter}
-                isWalletConnected={isWalletConnected}
-                executionConfig={executionConfig}
-              />
+              {isReadOnly ? (
+                <ViewQueryForm
+                  schema={formSchema}
+                  contractSchema={contractSchema}
+                  adapter={adapter}
+                />
+              ) : (
+                <TransactionForm
+                  schema={formSchema}
+                  contractSchema={contractSchema}
+                  adapter={adapter}
+                  isWalletConnected={isWalletConnected}
+                  executionConfig={executionConfig}
+                />
+              )}
             </CardContent>
           </Card>
         </div>

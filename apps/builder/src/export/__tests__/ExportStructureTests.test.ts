@@ -54,6 +54,9 @@ describe('Export Structure Tests', () => {
         'pnpm-workspace.yaml',
         'src/App.tsx',
         'src/components/GeneratedForm.tsx',
+        // GeneratedForm imports these for read-only functions; a missing copy breaks the build.
+        'src/components/ViewQueryForm.tsx',
+        'src/components/viewQueryArgs.ts',
         'src/main.tsx',
       ];
 

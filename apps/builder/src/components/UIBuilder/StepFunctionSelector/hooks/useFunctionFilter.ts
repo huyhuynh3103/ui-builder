@@ -6,6 +6,7 @@ interface UseFunctionFilterResult {
   functions: ContractFunction[];
   filteredFunctions: ContractFunction[];
   writableFunctions: ContractFunction[];
+  readableFunctions: ContractFunction[];
   filterValue: string;
   setFilterValue: (value: string) => void;
 }
@@ -30,16 +31,23 @@ export function useFunctionFilter(contractSchema: ContractSchema | null): UseFun
     );
   }, [functions, filterValue]);
 
-  // Memoize function categories
-  const writableFunctions = useMemo(() => {
-    // Include functions that modify state OR can execute locally (executable functions)
-    return filteredFunctions.filter((fn) => fn.modifiesState || fn.stateMutability === 'pure');
-  }, [filteredFunctions]);
+  // A function either sends a transaction or it does not. `pure` sits on the read side:
+  // it needs no wallet and returns a value, which is what the query form shows.
+  const writableFunctions = useMemo(
+    () => filteredFunctions.filter((fn) => fn.modifiesState),
+    [filteredFunctions]
+  );
+
+  const readableFunctions = useMemo(
+    () => filteredFunctions.filter((fn) => !fn.modifiesState),
+    [filteredFunctions]
+  );
 
   return {
     functions,
     filteredFunctions,
     writableFunctions,
+    readableFunctions,
     filterValue,
     setFilterValue,
   };

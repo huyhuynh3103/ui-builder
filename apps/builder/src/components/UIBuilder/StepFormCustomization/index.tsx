@@ -79,6 +79,10 @@ export function StepFormCustomization({
     return contractSchema?.functions.find((fn) => fn.id === selectedFunction) || null;
   }, [contractSchema, selectedFunction]);
 
+  // A read-only function is queried, never signed, so it has no execution method to pick.
+  const isReadOnly = !!selectedFunctionDetails && !selectedFunctionDetails.modifiesState;
+  const effectiveTab = isReadOnly && activeTab === 'execution' ? 'general' : activeTab;
+
   // Fetch function decorations to check if this function requires a runtime secret
   const effectiveRuntime = runtimeProp ?? runtime ?? undefined;
   const functionNote = useGetFunctionNote(
@@ -280,7 +284,7 @@ export function StepFormCustomization({
         />
       ) : (
         <Tabs
-          value={activeTab}
+          value={effectiveTab}
           onValueChange={(newTab) =>
             setUiState({ activeTab: newTab as 'general' | 'fields' | 'execution' | 'uikit' })
           }
@@ -292,7 +296,7 @@ export function StepFormCustomization({
             <TabsList className="w-full">
               <TabsTrigger value="general">General</TabsTrigger>
               <TabsTrigger value="fields">Fields</TabsTrigger>
-              <TabsTrigger value="execution">Execution Method</TabsTrigger>
+              {!isReadOnly && <TabsTrigger value="execution">Execution Method</TabsTrigger>}
               <TabsTrigger value="uikit">UI Kit</TabsTrigger>
             </TabsList>
           </div>
@@ -356,20 +360,22 @@ export function StepFormCustomization({
             )}
           </TabsContent>
 
-          <TabsContent
-            value="execution"
-            className="mt-4 rounded-md border p-4 data-[state=inactive]:hidden"
-            forceMount
-          >
-            {effectiveRuntime && (
-              <ExecutionMethodSettings
-                runtime={effectiveRuntime}
-                currentConfig={currentExecutionConfig}
-                onUpdateConfig={handleExecutionConfigUpdated}
-                isWidgetExpanded={isWidgetExpanded}
-              />
-            )}
-          </TabsContent>
+          {!isReadOnly && (
+            <TabsContent
+              value="execution"
+              className="mt-4 rounded-md border p-4 data-[state=inactive]:hidden"
+              forceMount
+            >
+              {effectiveRuntime && (
+                <ExecutionMethodSettings
+                  runtime={effectiveRuntime}
+                  currentConfig={currentExecutionConfig}
+                  onUpdateConfig={handleExecutionConfigUpdated}
+                  isWidgetExpanded={isWidgetExpanded}
+                />
+              )}
+            </TabsContent>
+          )}
 
           <TabsContent
             value="uikit"
