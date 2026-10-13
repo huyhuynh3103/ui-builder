@@ -3,6 +3,5 @@
   "buildCommand": "pnpm --filter @openzeppelin/ui-builder-app build",
   "outputDirectory": "apps/builder/dist",
   "framework": null,
-  "git": { "deploymentEnabled": { "main": false } },
   "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
 }
