@@ -18,6 +18,8 @@ import { logger, simpleHash } from '@openzeppelin/ui-utils';
 
 import type { BuilderRuntime } from '@/core/runtimeAdapter';
 
+import type { StoredContractDefinition } from '../storage/contractDefinitionStore';
+import { contractDefinitionStore } from '../storage/contractDefinitionStore';
 import { ContractLoadResult, loadContractDefinitionWithMetadata } from './ContractLoader';
 
 /**
@@ -122,7 +124,20 @@ class ContractDefinitionService {
 
     try {
       logger.info('ContractDefinitionService', `Loading ${contractAddress} on ${networkId}`);
-      const result = await loadContractDefinitionWithMetadata(runtime, formValues);
+
+      // A definition remembered for this address stands in for the explorer round-trip.
+      // It is only consulted when the form carries no definition of its own, so a pasted
+      // ABI always wins over the stored one.
+      const remembered = definitionStr ? undefined : await this.recall(networkId, contractAddress);
+      const valuesToLoad = remembered
+        ? { ...formValues, contractDefinition: remembered.definition }
+        : formValues;
+
+      const loaded = await loadContractDefinitionWithMetadata(runtime, valuesToLoad);
+      // Loading a remembered definition makes it look manual; keep its original provenance.
+      const result = remembered ? { ...loaded, source: remembered.source } : loaded;
+
+      void this.remember(networkId, contractAddress, result, definitionStr);
 
       // Success
       this.notify(requestKey, {
@@ -131,7 +146,7 @@ class ContractDefinitionService {
         lastLoaded: requestKey,
       });
 
-      onSuccess(result, formValues);
+      onSuccess(result, valuesToLoad);
       return true;
     } catch (error) {
       const err = error instanceof Error ? error : new Error(String(error));
@@ -144,6 +159,48 @@ class ContractDefinitionService {
       });
 
       throw err;
+    }
+  }
+
+  /**
+   * Look up a remembered definition. IndexedDB can be absent or blocked (private windows,
+   * cleared site data), and that must degrade to a normal explorer load, not an error.
+   */
+  private async recall(
+    networkId: string,
+    contractAddress: string
+  ): Promise<StoredContractDefinition | undefined> {
+    try {
+      return await contractDefinitionStore.getFor(networkId, contractAddress);
+    } catch (error) {
+      logger.warn('ContractDefinitionService', 'Failed to read remembered definition:', error);
+      return undefined;
+    }
+  }
+
+  /**
+   * Store the definition this load ended up using, so the next UI for the same address
+   * starts from it. Failures here are not worth failing a successful load over.
+   */
+  private async remember(
+    networkId: string,
+    contractAddress: string,
+    result: ContractLoadResult,
+    pastedDefinition?: string
+  ): Promise<void> {
+    const definition = result.contractDefinitionOriginal ?? pastedDefinition;
+    if (!definition) return;
+
+    try {
+      await contractDefinitionStore.remember({
+        networkId,
+        address: contractAddress,
+        definition,
+        source: result.source,
+        contractName: result.metadata?.contractName ?? result.schema.name,
+      });
+    } catch (error) {
+      logger.warn('ContractDefinitionService', 'Failed to remember contract definition:', error);
     }
   }
 

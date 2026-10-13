@@ -3,6 +3,7 @@ import {
   ArrowUpFromLine,
   BookOpenText,
   BookUser,
+  FileCode2,
   LayoutPanelTop,
   SquarePen,
 } from 'lucide-react';
@@ -13,6 +14,7 @@ import { SidebarButton } from '@openzeppelin/ui-components';
 import { useContractUIStorage } from '../../../contexts/useContractUIStorage';
 import { useBuilderAnalytics } from '../../../hooks/useBuilderAnalytics';
 import { AddressBookDialog } from '../../AddressBook/AddressBookDialog';
+import { ContractAbisDialog } from '../../ContractAbis/ContractAbisDialog';
 import { useUIBuilderStore } from '../../UIBuilder/hooks/useUIBuilderStore';
 import { recordHasMeaningfulContent } from '../../UIBuilder/utils/meaningfulContent';
 
@@ -57,6 +59,7 @@ export default function MainActions({
   });
 
   const [showAddressBook, setShowAddressBook] = useState(false);
+  const [showContractAbis, setShowContractAbis] = useState(false);
 
   return (
     <div className="flex w-full flex-col">
@@ -77,6 +80,13 @@ export default function MainActions({
         onClick={() => setShowAddressBook(true)}
       >
         Address Book
+      </SidebarButton>
+
+      <SidebarButton
+        icon={<FileCode2 className="size-4" />}
+        onClick={() => setShowContractAbis(true)}
+      >
+        Contract ABIs
       </SidebarButton>
 
       <SidebarButton icon={<ArrowDownToLine className="size-4" />} onClick={handleImport}>
@@ -102,6 +112,7 @@ export default function MainActions({
       </SidebarButton>
 
       <AddressBookDialog open={showAddressBook} onOpenChange={setShowAddressBook} />
+      <ContractAbisDialog open={showContractAbis} onOpenChange={setShowContractAbis} />
     </div>
   );
 }

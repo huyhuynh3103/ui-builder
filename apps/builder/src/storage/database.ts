@@ -34,4 +34,16 @@ export const db = createDexieDatabase('UIBuilder', [
       ...ALIAS_SCHEMA,
     },
   },
+  // Version 4: Remember a contract definition once per address, instead of once per UI
+  {
+    version: 4,
+    stores: {
+      contractUIs:
+        '++id, title, createdAt, updatedAt, ecosystem, networkId, contractAddress, functionId, contractDefinitionSource, contractDefinitionOriginal',
+      ...ALIAS_SCHEMA,
+      // Key-value store keyed by `${networkId}:${lowercased address}`
+      // updatedAt is indexed so the management dialog can list most-recent-first
+      contractDefinitions: '&key, updatedAt',
+    },
+  },
 ]);
